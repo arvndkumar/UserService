@@ -15,7 +15,6 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    //private static final String SECRET_KEY = "***REMOVED***";
 
     @Value("${jwt.secret}")
     private String secret;
