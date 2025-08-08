@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+bfg-mirror.git/
+replacements.txt
+.env
+.idea/
