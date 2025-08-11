@@ -1,0 +1,5 @@
+INSERT INTO roles(name, deleted) VALUES ('ROLE_USER', 0)
+ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+INSERT INTO roles(name, deleted) VALUES ('ROLE_ADMIN', 0)
+ON DUPLICATE KEY UPDATE name = VALUES(name);

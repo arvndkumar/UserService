@@ -36,3 +36,4 @@ bfg-mirror.git/
 replacements.txt
 .env
 .idea/
+.bfg-report/

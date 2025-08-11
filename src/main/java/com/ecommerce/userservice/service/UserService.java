@@ -1,22 +1,16 @@
 package com.ecommerce.userservice.service;
 
-import com.ecommerce.userservice.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import com.ecommerce.userservice.dto.User.RegisterRequest;
+import com.ecommerce.userservice.dto.User.UpdateProfileRequest;
+import com.ecommerce.userservice.dto.User.UserDTO;
 
-@Service
-@RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public interface UserService{
 
-    private final UserRepository userRepository;
-
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+    UserDTO register(RegisterRequest request);
+    UserDTO getProfileByEmail(String email);
+    UserDTO updateProfile(String email, UpdateProfileRequest request);
+    void changePassword(String email, String oldPassword, String newPassword);
+    void requestPasswordReset(String email);
+    void confirmPasswordReset(String token, String newPassword);
+    void ensureUserExists(String email);
 }

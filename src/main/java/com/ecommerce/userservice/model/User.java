@@ -3,6 +3,7 @@ package com.ecommerce.userservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
@@ -31,8 +32,7 @@ public class User extends Base implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> (GrantedAuthority) role ::getName)
-                .collect(Collectors.toList());
+                .map(role -> new SimpleGrantedAuthority(role.getName())).toList();
     }
 
     @Override
