@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
     public void confirmPasswordReset(String token, String newPassword) {
 
         PasswordResetToken prt = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Token Not found"));
+                .orElseThrow(() -> new BadRequestException("invalid token"));
 
         if(prt.getExpiresAt().isBefore(Instant.now())){
             throw new BadRequestException("Token expired");
