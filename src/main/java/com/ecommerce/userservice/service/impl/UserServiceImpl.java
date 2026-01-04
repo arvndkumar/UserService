@@ -1,5 +1,9 @@
 package com.ecommerce.userservice.service.impl;
 
+import com.ecommerce.userservice.dto.SendEmailDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import com.ecommerce.userservice.dto.User.RegisterRequest;
 import com.ecommerce.userservice.dto.User.UpdateProfileRequest;
@@ -31,6 +35,10 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+
 
 
     @Override
@@ -48,6 +56,20 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(request.password()))
                 .roles(List.of(role))
                 .build();
+        SendEmailDto sendEmailDto = new SendEmailDto();
+        sendEmailDto.setFrom("arvind.kumar@test.com");
+        sendEmailDto.setTo(request.email());
+        sendEmailDto.setSubject("User Registration Successful");
+        sendEmailDto.setBody("Hello " + request.name() + ", Your account has been created successfully.");
+
+        String sendEmailDtoString;
+        try {
+            sendEmailDtoString = objectMapper.writeValueAsString(sendEmailDto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        kafkaTemplate.send("sendEmail", sendEmailDtoString);
 
         return toDTO(userRepository.save(user));
     }

@@ -11,11 +11,13 @@ import com.ecommerce.userservice.model.User;
 import com.ecommerce.userservice.repository.PasswordResetTokenRepository;
 import com.ecommerce.userservice.repository.RoleRepository;
 import com.ecommerce.userservice.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
@@ -32,6 +34,8 @@ class UserServiceImplTest {
     private  PasswordEncoder passwordEncoder;
     private  RoleRepository roleRepository;
     private  PasswordResetTokenRepository passwordResetTokenRepository;
+    private ObjectMapper objectMapper;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     private UserServiceImpl service;
 
@@ -41,15 +45,20 @@ class UserServiceImplTest {
         roleRepository = mock(RoleRepository.class);
         passwordEncoder = mock(PasswordEncoder.class);
         passwordResetTokenRepository = mock(PasswordResetTokenRepository.class);
+        objectMapper = mock(ObjectMapper.class);
+        kafkaTemplate = mock(KafkaTemplate.class);
 
-        service = new UserServiceImpl(userRepository, passwordEncoder, roleRepository, passwordResetTokenRepository);
+        service = new UserServiceImpl(userRepository, passwordEncoder, roleRepository, passwordResetTokenRepository, objectMapper, kafkaTemplate);
     }
 
     @Test
-    void register_success() {
+    void register_success() throws Exception {
         when(userRepository.existsByEmail("a@a.com")).thenReturn(false);
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(role("ROLE_USER")));
         when(passwordEncoder.encode("pass")).thenReturn("hashed");
+
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"dummy\":true}");
+        when(kafkaTemplate.send(eq("sendEmail"), anyString())).thenReturn(null);
 
         User user = new User();
         user.setId(1L);
@@ -67,6 +76,8 @@ class UserServiceImplTest {
         ArgumentCaptor<User> cap = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(cap.capture());
         assertEquals("hashed", cap.getValue().getPassword());
+
+        verify(kafkaTemplate).send(eq("sendEmail"), anyString());
     }
 
     @Test
