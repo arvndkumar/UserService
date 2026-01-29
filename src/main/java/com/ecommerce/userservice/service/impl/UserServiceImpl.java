@@ -62,6 +62,8 @@ public class UserServiceImpl implements UserService {
         sendEmailDto.setSubject("User Registration Successful");
         sendEmailDto.setBody("Hello " + request.name() + ", Your account has been created successfully.");
 
+        User savedUser = userRepository.save(user);
+
         String sendEmailDtoString;
         try {
             sendEmailDtoString = objectMapper.writeValueAsString(sendEmailDto);
